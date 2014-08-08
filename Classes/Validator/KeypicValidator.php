@@ -33,14 +33,9 @@ namespace TYPO3\CMS\Form\Validation;
 class KeypicValidator extends \TYPO3\CMS\Form\Validation\AbstractValidator {
 
     /**
-     * @var tx_wtspamshield_div
+     * @var \Keypic
      */
-    protected $div;
-
-    /**
-     * @var mixed
-     */
-    public $additionalValues = array();
+    protected $keypic;
 
     /**
      * @var string
@@ -53,29 +48,64 @@ class KeypicValidator extends \TYPO3\CMS\Form\Validation\AbstractValidator {
     public $tsConf;
 
     /**
+     * clientEmailAddress
+     *
+     * @var string
+     */
+    protected $clientEmailAddress;
+
+    /**
+     * clientUsername
+     *
+     * @var string
+     */
+    protected $clientUsername;
+
+    /**
+     * clientMessage
+     *
+     * @var string
+     */
+    protected $clientMessage;
+
+    /**
+     * clientFingerprint
+     *
+     * @var string
+     */
+    protected $clientFingerprint;
+
+    /**
+     * token
+     *
+     * @var string
+     */
+    protected $token;
+
+    /**
      * Constructor
      *
      * @param array $arguments
      * @return	void
      */
     public function __construct($arguments) {
-        $this->tsConf = $this->getDiv()->getTsConf();
-        $honeypotInputName = $this->tsConf['honeypot.']['inputname.'][$this->tsKey];
-        $this->additionalValues['honeypotCheck']['prefixInputName'] = 'tx_form';
-        $this->additionalValues['honeypotCheck']['honeypotInputName'] = $honeypotInputName;
+        $this->clientEmailAddress = $arguments['clientEmailAddress'];
+        $this->clientUsername = $arguments['clientUsername'];
+        $this->clientMessage = $arguments['clientMessage'];
+        $$this->clientFingerprint = $arguments['clientFingerprint'];
         parent::__construct($arguments);
     }
 
     /**
-     * getDiv
+     * getKeypic
      *
-     * @return tx_wtspamshield_div
+     * @return \Keypic
      */
-    protected function getDiv() {
-        if (!isset($this->div)) {
-            $this->div = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('tx_wtspamshield_div');
+    protected function getKeypic() {
+        if (!isset($this->keypic)) {
+            $this->keypic = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('\Keypic');
         }
-        return $this->div;
+        return $this->keypic;
     }
 
     /**
@@ -86,53 +116,13 @@ class KeypicValidator extends \TYPO3\CMS\Form\Validation\AbstractValidator {
      */
     public function isValid() {
 
-        if ( $this->getDiv()->isActivated($this->tsKey) ) {
-            $error = '';
-
-            if ($this->requestHandler->has($this->fieldName)) {
-                $value = $this->requestHandler->getByMethod($this->fieldName);
-                $validateArray = array(
-                    $this->fieldName => $value
-                );
-                $error = $this->validate($validateArray);
-            }
-
-            if (strlen($error) > 0) {
-                $this->setError('', strip_tags($error));
-                return FALSE;
-            }
+        $this->token = $this->getKeypic()->getToken($this->token);
+        $isSpam = $this->getKeypic()->isSpam($this->token);
+        if ($isSpam['status'] == 'response' && $isSpam['spam'] >= $this->minSpam ) {
+            return TRUE;
+        } else {
+            RETURN FALSE;
         }
-
-        return TRUE;
     }
-
-    /**
-     * validate
-     *
-     * @param array $fieldValues
-     * @return string
-     */
-    protected function validate(array $fieldValues) {
-
-        $availableValidators =
-            array(
-                'blacklistCheck',
-                'httpCheck',
-                'honeypotCheck',
-            );
-
-        $tsValidators = $this->getDiv()->commaListToArray($this->tsConf['validators.'][$this->tsKey . '_new.']['enable']);
-
-        $processor = $this->getDiv()->getProcessor();
-        $processor->tsKey = $this->tsKey;
-        $processor->fieldValues = $fieldValues;
-        $processor->additionalValues = $this->additionalValues;
-        $processor->failureRate = intval($this->tsConf['validators.'][$this->tsKey . '_new.']['how_many_validators_can_fail']);
-        $processor->methodes = array_intersect($tsValidators, $availableValidators);
-
-        $error = $processor->validate();
-        return $error;
-    }
-
 }
 ?>
