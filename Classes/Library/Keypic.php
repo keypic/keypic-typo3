@@ -97,6 +97,9 @@ class Keypic
             $fields['Quantity'] = $Quantity;
             $fields['ServerName'] = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : '';
             $fields['ClientIP'] = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
+            if ($fields['ClientIP'] == '127.0.0.1') {
+                $fields['ClientIP'] = '109.166.132.55';
+            }
             $fields['ClientUserAgent'] = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
             $fields['ClientAccept'] = isset($_SERVER['HTTP_ACCEPT']) ? $_SERVER['HTTP_ACCEPT'] : '';
             $fields['ClientAcceptEncoding'] = isset($_SERVER['HTTP_ACCEPT_ENCODING']) ? $_SERVER['HTTP_ACCEPT_ENCODING'] : '';
@@ -109,7 +112,7 @@ class Keypic
             $fields['ClientFingerprint'] = $ClientFingerprint;
 
             $response = json_decode(self::sendRequest($fields), true);
-
+            \TYPO3\CMS\Core\Utility\GeneralUtility::devLog('Keypic RAW response', 'keypic', 0, array($response));
             if($response['status'] == 'new_token')
             {
                 self::$Token = $response['Token'];
@@ -140,6 +143,9 @@ class Keypic
         $fields['ResponseType'] = '2';
         $fields['ServerName'] = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : '';
         $fields['ClientIP'] = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
+        if ($fields['ClientIP'] == '127.0.0.1') {
+            $fields['ClientIP'] = '109.166.132.55';
+        }
         $fields['ClientUserAgent'] = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
         $fields['ClientAccept'] = isset($_SERVER['HTTP_ACCEPT']) ? $_SERVER['HTTP_ACCEPT'] : '';
         $fields['ClientAcceptEncoding'] = isset($_SERVER['HTTP_ACCEPT_ENCODING']) ? $_SERVER['HTTP_ACCEPT_ENCODING'] : '';
