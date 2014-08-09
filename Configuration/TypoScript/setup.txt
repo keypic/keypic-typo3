@@ -1,0 +1,10 @@
+plugin.tx_keypic {
+    settings {
+        clientEmailAddress = {$plugin.tx_keypic.settings.clientEmailAddress}
+        clientUsername = {$plugin.tx_keypic.settings.clientUsername}
+        clientMessage = {$plugin.tx_keypic.settings.clientMessage}
+        clientFingerprint = {$plugin.tx_keypic.settings.clientFingerprint}
+        formID = {$plugin.tx_keypic.settings.formID}
+        minSpam = {$plugin.tx_keypic.settings.minSpam}
+    }
+}

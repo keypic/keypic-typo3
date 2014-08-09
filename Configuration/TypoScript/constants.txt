@@ -1,0 +1,16 @@
+plugin.tx_keypic {
+    settings {
+        # cat=main; type=text; label= Client email address (e.g. email@domain.org).
+        clientEmailAddress = militarutomita@gmail.com
+        # cat=main; type=text; label= Client username
+        clientUsername =
+        # cat=main; type=text; label= Client message
+        clientMessage =
+        # cat=main; type=text; label= Client fingerprint
+        clientFingerprint =
+        # cat=main; type=text; label= Form ID
+        formID = 73497c223250e3034c3cd8ecb9f43165
+        # cat=main; type=text; label= Minimum acceptance spam score (eg. 0 - 100)
+        minSpam = 80
+    }
+}

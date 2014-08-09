@@ -23,6 +23,8 @@ namespace TYPO3\CMS\Form\Validation;
      *
      *  This copyright notice MUST APPEAR in all copies of the script!
      ***************************************************************/
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 /**
  * defaultmailform keypic rule (TYPO3 6.x)
@@ -83,16 +85,27 @@ class KeypicValidator extends \TYPO3\CMS\Form\Validation\AbstractValidator {
     protected $token;
 
     /**
+     * formID
+     *
+     * @var string
+     */
+    protected $formID;
+
+    /**
      * Constructor
      *
      * @param array $arguments
      * @return	void
      */
     public function __construct($arguments) {
-        $this->clientEmailAddress = $arguments['clientEmailAddress'];
-        $this->clientUsername = $arguments['clientUsername'];
-        $this->clientMessage = $arguments['clientMessage'];
-        $$this->clientFingerprint = $arguments['clientFingerprint'];
+        $settings = \KEYPIC\Service\TsLoaderService::getTsSetup('keypic', true);
+        $this->clientEmailAddress = $settings['clientEmailAddress'];
+        $this->clientUsername = $settings['clientUsername'];
+        $this->clientMessage = $settings['clientMessage'];
+        $this->clientFingerprint = $settings['clientFingerprint'];
+        $this->formID = $settings['formID'];
+        $this->minSpam = $settings['minSpam'];
+        GeneralUtility::devLog('Keypic settings', 'keypic', 0, $settings);
         parent::__construct($arguments);
     }
 
@@ -104,6 +117,7 @@ class KeypicValidator extends \TYPO3\CMS\Form\Validation\AbstractValidator {
     protected function getKeypic() {
         if (!isset($this->keypic)) {
             $this->keypic = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('\Keypic');
+            $this->keypic->setFormID($this->formID);
         }
         return $this->keypic;
     }
@@ -117,8 +131,10 @@ class KeypicValidator extends \TYPO3\CMS\Form\Validation\AbstractValidator {
     public function isValid() {
 
         $this->token = $this->getKeypic()->getToken($this->token);
-        $isSpam = $this->getKeypic()->isSpam($this->token);
-        if ($isSpam['status'] == 'response' && $isSpam['spam'] >= $this->minSpam ) {
+        $isSpam = $this->getKeypic()->isSpam($this->token, $this->clientEmailAddress, $this->clientUsername, $this->clientMessage, $this->clientFingerprint);
+        GeneralUtility::devLog('Keypic token', 'keypic', 0, array($this->token));
+        GeneralUtility::devLog('Keypic response', 'keypic', 0, array($isSpam));
+        if (intval($isSpam) >= $this->minSpam ) {
             return TRUE;
         } else {
             RETURN FALSE;

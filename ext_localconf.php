@@ -7,6 +7,10 @@ $t3Version = \TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberT
 $extPath = \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('keypic');
 
 if ($t3Version >= 6000000 AND \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('form')) {
-    $txFormValidator = $extPath . 'Classes/Validator/KeypicValidator.php';
+    $txFormValidator = $extPath . 'Classes/Validation/Validator/KeypicValidator.php';
+    $tsService = $extPath . 'Classes/Service/TsLoaderService.php';
+    $keypic = $extPath . 'Classes/Library/Keypic.php';
     require_once($txFormValidator);
+    require_once($tsService);
+    require_once($keypic);
 }
