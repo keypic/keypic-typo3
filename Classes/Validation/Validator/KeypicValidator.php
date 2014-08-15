@@ -101,12 +101,14 @@ class KeypicValidator extends \TYPO3\CMS\Form\Validation\AbstractValidator {
         $settings = \KEYPIC\Service\TsLoaderService::getTsSetup('keypic', true);
         $this->clientEmailAddress = $settings['clientEmailAddress'];
         $this->clientUsername = $settings['clientUsername'];
-        $this->clientMessage = $settings['clientMessage'];
+
         $this->clientFingerprint = $settings['clientFingerprint'];
         $this->formID = $settings['formID'];
         $this->minSpam = $settings['minSpam'];
-        GeneralUtility::devLog('Keypic settings', 'keypic', 0, $settings);
+        GeneralUtility::devLog('Keypic arguments', 'keypic', 0, $arguments);
         parent::__construct($arguments);
+        $this->clientMessage = $this->requestHandler->getByMethod($this->fieldName);
+        GeneralUtility::devLog('Keypic message', 'keypic', 0, array($this->clientMessage));
     }
 
     /**
